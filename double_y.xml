@@ -1,8 +1,8 @@
 <mujoco model="double_y">
   <default>
-    <geom rgba=".8 .6 .4 1"  solref="0.005 1.1"/>
+    <geom rgba=".8 .6 .4 1"  solref="0.02 1"/>
   </default>
-  <option gravity="0 0 0"/>
+  <option gravity="0 0 0" integrator="RK4"/>
 
   <asset>
     <texture type="skybox" builtin="gradient" rgb1="1 1 1" rgb2=".6 .8 1" width="256" height="256"/>
@@ -110,24 +110,24 @@
 
 
   <actuator>
-    <general name="jointA0act" joint="jointA0"/>
-    <general name="jointA1act" joint="jointA1"/>
-    <general name="jointBact" joint="jointB"/>
-    <general name="jointCact" joint="jointC"/>
-    <general name="jointBA0act" joint="jointBA0"/>
-    <general name="jointBA1act" joint="jointBA1"/>
-    <general name="jnt_end0act" joint="jnt_end0"/>
-    <general name="jointBB0act" joint="jointBB0"/>
-    <general name="jointBB1act" joint="jointBB1"/>
-    <general name="jnt_end1act" joint="jnt_end1"/>
-    <general name="jointCA0act" joint="jointCA0"/>
-    <general name="jointCA1act" joint="jointCA1"/>
-    <general name="jnt_end2act" joint="jnt_end2"/>
-    <general name="jointCB0act" joint="jointCB0"/>
-    <general name="jointCB1act" joint="jointCB1"/>
-    <general name="jnt_end3act" joint="jnt_end3"/>
-    <velocity name="t0v" joint="t0" gear="1 0 0 0 0 0"/>
-    <velocity name="t1v" joint="t1" gear="1 0 0 0 0 0"/>
+    <motor name="jointA0act" joint="jointA0"/>
+    <motor name="jointA1act" joint="jointA1"/>
+    <motor name="jointBact" joint="jointB"/>
+    <motor name="jointCact" joint="jointC"/>
+    <motor name="jointBA0act" joint="jointBA0"/>
+    <motor name="jointBA1act" joint="jointBA1"/>
+    <motor name="jnt_end0act" joint="jnt_end0"/>
+    <motor name="jointBB0act" joint="jointBB0"/>
+    <motor name="jointBB1act" joint="jointBB1"/>
+    <motor name="jnt_end1act" joint="jnt_end1"/>
+    <motor name="jointCA0act" joint="jointCA0"/>
+    <motor name="jointCA1act" joint="jointCA1"/>
+    <motor name="jnt_end2act" joint="jnt_end2"/>
+    <motor name="jointCB0act" joint="jointCB0"/>
+    <motor name="jointCB1act" joint="jointCB1"/>
+    <motor name="jnt_end3act" joint="jnt_end3"/>
+    <velocity name="t0v" joint="t0" gear="0 1 0 0 0 0"/>
+    <velocity name="t1v" joint="t1" gear="0 1 0 0 0 0"/>
     <velocity name="t2v" joint="t2" gear="1 0 0 0 0 0"/>
     <velocity name="t3v" joint="t3" gear="1 0 0 0 0 0"/>
   </actuator>

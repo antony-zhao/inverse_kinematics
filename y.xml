@@ -1,6 +1,6 @@
 <mujoco model="y">
   <default>
-    <geom rgba=".8 .6 .4 1"  solref="0.01 1.1"/>
+    <geom rgba=".8 .6 .4 1"  solref="0.02 1"/>
   </default>
   <option gravity="0 0 0"/>
 
@@ -58,13 +58,13 @@
   </worldbody>
 
   <actuator>
-    <general name="joint0act" joint="joint0"/>
-    <general name="joint1act" joint="joint1"/>
-    <general name="joint2act" joint="joint2"/>
-    <general name="jnt_end0act" joint="jnt_end0"/>
-    <general name="joint4act" joint="joint4"/>
-    <general name="joint5act" joint="joint5"/>
-    <general name="jnt_end1act" joint="jnt_end1"/>
+    <motor name="joint0act" joint="joint0"/>
+    <motor name="joint1act" joint="joint1"/>
+    <motor name="joint2act" joint="joint2"/>
+    <motor name="jnt_end0act" joint="jnt_end0"/>
+    <motor name="joint4act" joint="joint4"/>
+    <motor name="joint5act" joint="joint5"/>
+    <motor name="jnt_end1act" joint="jnt_end1"/>
     <velocity name="t0v" joint="t0" gear="1 0 0 0 0 0"/>
     <velocity name="t1v" joint="t1"/>
   </actuator>

@@ -52,6 +52,9 @@ def main():
     parser.add_argument("--clip_angle", type=float, default=[1, 1], nargs=2)
     parser.add_argument("--logspace", type=int, default=None)
     parser.add_argument("--linspace", type=int, default=1)
+    parser.add_argument("--PD", action="store_true")
+    parser.add_argument("--P", type=float, default=None)
+    parser.add_argument("--D", type=float, default=None)
 
     hyperparameters(parser.parse_args())
 

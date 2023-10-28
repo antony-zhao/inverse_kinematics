@@ -26,6 +26,35 @@ def clamp_mag(dist, d_max):
     return clamped
 
 
+def inverse_kinematics_solver(m, d, num_ends, num_joints, end_pos, e_clamped, args):
+    J = np.zeros((3 * num_ends, num_joints))
+    jacp = np.zeros((3, m.nv))
+    jacr = None
+    for i in range(num_ends):
+        id = m.joint(f"jnt_end{i}").bodyid
+        mujoco.mj_jac(m=m, d=d, jacp=jacp, jacr=jacr, point=end_pos[i][:, np.newaxis], body=id)
+        J[i * 3:(i + 1) * 3] += jacp[:, :num_joints]
+
+    current_time = time()
+    if args.transpose:
+        J_T = J.T
+        temp = (J @ J_T @ e_clamped)
+        alpha = (e_clamped @ temp) / (temp @ temp)
+        delta_theta = alpha * J_T @ e_clamped
+    elif args.pseudo_inverse:
+        inv = np.linalg.pinv(J)
+        delta_theta = inv @ e_clamped
+    elif args.DLS:
+        J_T = J.T
+        delta_theta = J_T @ (J @ J_T + args.damp ** 2 * np.eye(3 * num_ends)) @ e_clamped
+    else:
+        delta_theta = [0 for _ in range(num_joints)]
+
+    elapsed_time = time() - current_time
+
+    return delta_theta, elapsed_time
+
+
 def run_experiment(args):
     m = mujoco.MjModel.from_xml_path(filename=args.xml, assets=None)
     d = mujoco.MjData(m)
@@ -50,36 +79,21 @@ def run_experiment(args):
                 end_pos = np.asarray([d.site(f"end{i}").xpos for i in range(num_ends)])
                 e_dist = target_pos - end_pos
                 avg_dist.append(np.sum(np.linalg.norm(e_dist, axis=1)))
-
-                J = np.zeros((3 * num_ends, num_joints))
-                jacp = np.zeros((3, m.nv))
-                jacr = None
-                for i in range(num_ends):
-                    id = m.joint(f"jnt_end{i}").bodyid
-                    mujoco.mj_jac(m=m, d=d, jacp=jacp, jacr=jacr, point=end_pos[i][:, np.newaxis], body=id)
-                    J[i * 3:(i + 1) * 3] += jacp[:, :num_joints]
-
-                current_time = time()
                 e_clamped = clamp_mag(e_dist, args.clamp).flatten()
-                if args.transpose:
-                    J_T = J.T
-                    temp = (J @ J_T @ e_clamped)
-                    alpha = (e_clamped @ temp) / (temp @ temp)
-                    delta_theta = alpha * J_T @ e_clamped
-                elif args.pseudo_inverse:
-                    inv = np.linalg.pinv(J)
-                    delta_theta = inv @ e_clamped
-                elif args.DLS:
-                    J_T = J.T
-                    delta_theta = J_T @ (J @ J_T + args.damp ** 2 * np.eye(3 * num_ends)) @ e_clamped
-                else:
-                    delta_theta = [0 for _ in range(num_joints)]
 
-                times.append(time() - current_time)
+                if not args.PD or step % args.decimation == 0:
+                    delta_theta, elapsed_time = inverse_kinematics_solver(
+                        m, d, num_ends, num_joints, end_pos, e_clamped, args)
 
-                delta_theta = np.clip(delta_theta, -args.clip_angle, args.clip_angle)
+                    times.append(elapsed_time)
+
+                    delta_theta = np.clip(delta_theta, -args.clip_angle, args.clip_angle)
+
                 for i in range(num_joints):
-                    d.actuator(d.joint(i).name + "act").ctrl = delta_theta[i]
+                    if args.PD:
+                        d.actuator(d.joint(i).name + "act").ctrl = delta_theta[i] * args.P - args.D * d.joint(i).qvel
+                    else:
+                        d.qpos[i] += delta_theta[i]
 
                 for i in range(num_ends):
                     if step % args.period < args.period // 2:
@@ -105,6 +119,10 @@ def main():
     parser.add_argument("--max_timestep", type=int, default=50000)
     parser.add_argument("--name", type=str, default="out")
     parser.add_argument("--clip_angle", type=float, default=1)
+    parser.add_argument("--PD", action="store_true")
+    parser.add_argument("--decimation", type=int, default=10)
+    parser.add_argument("--P", type=float, default=0.1)
+    parser.add_argument("--D", type=float, default=0.1)
 
     args = parser.parse_args()
     current_time = time()
