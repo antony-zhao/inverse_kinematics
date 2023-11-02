@@ -102,7 +102,7 @@ def run_experiment(args):
                         d.actuator(f"t{i}v").ctrl = -0.05
 
                 step += 1
-    return frame_list, times, avg_dist
+    return frame_list, times, np.mean(avg_dist)
 
 
 def main():
@@ -119,6 +119,7 @@ def main():
     parser.add_argument("--max_timestep", type=int, default=50000)
     parser.add_argument("--name", type=str, default="out")
     parser.add_argument("--clip_angle", type=float, default=1)
+
     parser.add_argument("--PD", action="store_true")
     parser.add_argument("--decimation", type=int, default=10)
     parser.add_argument("--P", type=float, default=0.1)

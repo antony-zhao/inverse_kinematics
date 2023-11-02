@@ -25,12 +25,12 @@ def hyperparameters(args):
                 for damp in damps:
                     temp_args.damp = damp
                     _, _, dist = run_experiment(temp_args)
-                    if np.mean(dist) < min_dist:
+                    if dist < min_dist:
                         min_arg = (clamp, clip, damp)
                         min_dist = np.mean(dist)
             else:
                 _, _, dist = run_experiment(temp_args)
-            if np.mean(dist) < min_dist:
+            if dist < min_dist:
                 min_arg = (clamp, clip)
                 min_dist = np.mean(dist)
     print(f"Minimum Distance: {min_dist}, with params: {min_arg} clamp, clip, (damp)")
@@ -53,8 +53,8 @@ def main():
     parser.add_argument("--logspace", type=int, default=None)
     parser.add_argument("--linspace", type=int, default=1)
     parser.add_argument("--PD", action="store_true")
-    parser.add_argument("--P", type=float, default=None)
-    parser.add_argument("--D", type=float, default=None)
+    parser.add_argument("--P", type=float, default=[1, 1], nargs=2)
+    parser.add_argument("--D", type=float, default=[1, 1], nargs=2)
 
     hyperparameters(parser.parse_args())
 
