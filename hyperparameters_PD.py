@@ -15,15 +15,17 @@ def hyperparameters(args):
     min_arg = None
     min_dist = np.inf
 
-    for p in P:
-        for d in D:
-            temp_args.P = p
-            temp_args.D = d
-            _, _, dist = run_experiment(temp_args)
-            if dist < min_dist:
-                min_arg = (p, d)
-                min_dist = np.mean(dist)
-    print(f"Minimum Distance: {min_dist}, with params: {min_arg} P, D")
+    for dec in range(1, 11):
+        for p in P:
+            for d in D:
+                temp_args.P = p
+                temp_args.D = d
+                temp_args.decimation = dec
+                _, _, dist = run_experiment(temp_args)
+                if dist < min_dist:
+                    min_arg = (p, d)
+                    min_dist = np.mean(dist)
+        print(f"Minimum Distance: {min_dist}, with params: {min_arg} P, D")
 
 
 def main():
